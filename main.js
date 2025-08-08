@@ -108,6 +108,28 @@ class TestScene extends Phaser.Scene {
       minidv: Phaser.Input.Keyboard.KeyCodes.FOUR
     });
 
+    this.shiftKey = this.input.keyboard.addKey('T');
+
+    this.timeObjects = this.physics.add.group();
+    const block = this.physics.add.image(400, 300, 'ground');
+    block.setData('states', {
+      past: {
+        x: 400,
+        y: 300,
+        tint: 0x00ffff,
+        immovable: true,
+        gravity: false
+      },
+      future: {
+        tint: 0xff0000,
+        immovable: false,
+        gravity: true
+      }
+    });
+    this.applyState(block, 'past');
+    this.timeObjects.add(block);
+    this.physics.add.collider(this.player, block);
+
     this.cameras.main.setBounds(0, 0, 1600, 600);
     this.physics.world.setBounds(0, 0, 1600, 600);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
@@ -133,6 +155,18 @@ class TestScene extends Phaser.Scene {
     });
 
     this.applyMode('betamax');
+  }
+
+  applyState(obj, state) {
+    const data = obj.getData('states')[state];
+    obj.setTint(data.tint);
+    obj.setImmovable(data.immovable);
+    obj.body.setAllowGravity(data.gravity);
+    if (state === 'past') {
+      obj.setPosition(data.x, data.y);
+      obj.body.setVelocity(0, 0);
+    }
+    obj.setData('activeState', state);
   }
 
   update() {
@@ -165,6 +199,14 @@ class TestScene extends Phaser.Scene {
 
     if (this.cursors.up.isDown && onGround) {
       this.player.setVelocityY(this.jumpVel);
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.shiftKey)) {
+      this.timeObjects.children.iterate(obj => {
+        const current = obj.getData('activeState');
+        const next = current === 'past' ? 'future' : 'past';
+        this.applyState(obj, next);
+      });
     }
   }
 
