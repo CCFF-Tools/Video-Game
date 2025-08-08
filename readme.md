@@ -40,6 +40,8 @@ Primordial Slush.
 - Flavor-based weaknesses and dripping attacks with particle effects.
 - Video format modes (Betamax, 8mm, MPEG2, MiniDV) altering visuals and
   physics; press number keys 1–4 to switch.
+- Mode-specific abilities like block breaking or time slowing that
+  interact with environmental blocks and hazards.
 - Collectible codec items with compatibility rules.
 - Fuse codecs to unlock doors or trigger hallucinations.
 - Puzzle combinations yield unique effects or spectacular failures.
@@ -51,8 +53,8 @@ Primordial Slush.
 
 Switch between media styles for different looks and physics tweaks:
 
-1 - Betamax: sepia filter with heavier gravity.
-2 - 8mm: grainy monochrome and slower movement.
+1 - Betamax: sepia filter with heavier gravity that breaks fragile blocks.
+2 - 8mm: grainy monochrome and slower movement that slows time.
 3 - MPEG2: vibrant colors with baseline physics.
 4 - MiniDV: bright, high-contrast visuals and lighter gravity.
 
