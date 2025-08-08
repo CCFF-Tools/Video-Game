@@ -439,6 +439,12 @@ class TestScene extends Phaser.Scene {
         delay: 1000,
         callback: () => this.setMode(this.currentMode)
       });
+    } else if (result === 'switch') {
+      this.levelManager.activateSwitch(this.player);
+    } else if (result === 'elevator') {
+      this.levelManager.powerElevators();
+    } else if (result === 'hazard') {
+      this.levelManager.disableHazards();
     } else {
       this.cameras.main.shake(500, 0.01);
       this.player.setTint(0xff0000);

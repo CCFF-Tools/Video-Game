@@ -5,7 +5,19 @@
     { "x": 400, "y": 568, "width": 800, "height": 32 }
   ],
   "doors": [
-    { "x": 40, "y": 536, "target": "room1", "startX": 700, "startY": 450 },
-    { "x": 760, "y": 400, "target": "room3", "startX": 100, "startY": 450, "hidden": true }
+    { "x": 40, "y": 536, "target": "room1", "startX": 700, "startY": 450 }
+  ],
+  "locks": [
+    {
+      "x": 760,
+      "y": 400,
+      "target": "room3",
+      "startX": 100,
+      "startY": 450,
+      "hidden": true
+    }
+  ],
+  "switches": [
+    { "x": 400, "y": 536, "targetLock": 0 }
   ]
 }

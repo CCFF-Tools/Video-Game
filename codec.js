@@ -1,6 +1,9 @@
 export const CODEC_FUSIONS = {
   'H264+AAC': 'unlock',
-  'VP9+OGG': 'hallucination'
+  'VP9+OGG': 'hallucination',
+  'H264+VP9': 'switch',
+  'AAC+OGG': 'elevator',
+  'H264+OGG': 'hazard'
 };
 
 export class CodecItem extends Phaser.Physics.Arcade.Sprite {
