@@ -46,6 +46,7 @@ Primordial Slush.
   interact with environmental blocks and hazards.
 - Collectible codec items with compatibility rules.
 - Fuse codecs to unlock doors or trigger hallucinations.
+- Specific fusions now activate switches, power elevators, or disable hazards.
 - Puzzle combinations yield unique effects or spectacular failures.
 - Timecode HUD displaying playback integrity and energy levels.
 - Playback integrity decays when hit or during codec glitches.
