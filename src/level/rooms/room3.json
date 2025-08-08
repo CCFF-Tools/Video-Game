@@ -1,0 +1,11 @@
+{
+  "width": 800,
+  "height": 600,
+  "platforms": [
+    { "x": 400, "y": 568, "width": 800, "height": 32 },
+    { "x": 400, "y": 400, "width": 200, "height": 20 }
+  ],
+  "doors": [
+    { "x": 40, "y": 536, "target": "room2", "startX": 700, "startY": 450 }
+  ]
+}

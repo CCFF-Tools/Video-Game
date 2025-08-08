@@ -1,6 +1,7 @@
 import { config } from './config.js';
 import { PopsicleEnemy } from './popsicle.js';
 import { CodecItem, CODEC_FUSIONS } from './codec.js';
+import { LevelManager } from './src/level/manager.js';
 
 function percentToTimecode(percent) {
   const totalFrames = Math.floor((percent / 100) * 60 * 24);
@@ -54,7 +55,8 @@ class TestScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text('script', 'script.txt');
+    this.levelManager = new LevelManager(this);
+    this.levelManager.preload(['room1', 'room2', 'room3']);
     this.load.image(
       'bg-far',
       'https://labs.phaser.io/assets/skies/space3.png'
@@ -62,10 +64,6 @@ class TestScene extends Phaser.Scene {
     this.load.image(
       'bg-mid',
       'https://labs.phaser.io/assets/skies/sky4.png'
-    );
-    this.load.image(
-      'ground',
-      'https://labs.phaser.io/assets/sprites/platform.png'
     );
     this.load.spritesheet(
       'dude',
@@ -108,54 +106,14 @@ class TestScene extends Phaser.Scene {
       .setScrollFactor(0.3)
       .setDisplaySize(1600, 600);
 
-    this.ground = this.physics.add.staticGroup();
-    this.ground
-      .create(400, 568, 'ground')
-      .setScale(2)
-      .refreshBody();
-    this.ground
-      .create(1200, 568, 'ground')
-      .setScale(2)
-      .refreshBody();
-
-    const script = this.cache.text.get('script');
-    const lines = script
-      ? script.trim().split('\n')
-      : [
-          'Default platform 1',
-          'Default platform 2',
-          'Default platform 3'
-        ];
-
-    const textPlatforms = this.physics.add.group({
-      allowGravity: false,
-      immovable: true
-    });
-    let x = 200;
-    lines.forEach((line, i) => {
-      const y = 400 - i * 80;
-      const text = this.add
-        .text(x, y, line, {
-          fontSize: '20px',
-          color: '#fff',
-          backgroundColor: '#000'
-        })
-        .setPadding(4);
-      this.physics.add.existing(text);
-      text.body.setAllowGravity(false);
-      text.body.setImmovable(true);
-      textPlatforms.add(text);
-      x += text.width + 50;
-    });
-
     this.player = this.physics.add.sprite(100, 450, 'dude');
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
     this.player.setDragX(1000);
     this.player.setMaxVelocity(300, 500);
 
-    this.physics.add.collider(this.player, this.ground);
-    this.physics.add.collider(this.player, textPlatforms);
+    this.levelManager.create();
+    this.levelManager.start('room1', this.player);
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.fireKey = this.input.keyboard.addKey('Z');
@@ -168,9 +126,6 @@ class TestScene extends Phaser.Scene {
       four: Phaser.Input.Keyboard.KeyCodes.FOUR
     });
 
-    const worldWidth = Math.max(1600, x + 200);
-    this.cameras.main.setBounds(0, 0, worldWidth, 600);
-    this.physics.world.setBounds(0, 0, worldWidth, 600);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
     this.playbackIntegrity = 100;
@@ -221,8 +176,15 @@ class TestScene extends Phaser.Scene {
       this.popsicles,
       () => this.takeDamage(10)
     );
-    this.physics.add.collider(this.popsicles, this.ground);
-    this.physics.add.collider(this.drops, this.ground, drop => drop.destroy());
+    this.physics.add.collider(
+      this.popsicles,
+      this.levelManager.platforms
+    );
+    this.physics.add.collider(
+      this.drops,
+      this.levelManager.platforms,
+      drop => drop.destroy()
+    );
     this.physics.add.overlap(
       this.bullets,
       this.popsicles,
@@ -259,10 +221,6 @@ class TestScene extends Phaser.Scene {
         codec.destroy();
       }
     );
-    this.door = this.physics.add
-      .staticImage(1100, 488, 'door')
-      .setOrigin(0.5, 1);
-    this.physics.add.collider(this.player, this.door);
     this.fuseKey = this.input.keyboard.addKey('F');
 
     this.setMode('Betamax');
@@ -284,7 +242,6 @@ class TestScene extends Phaser.Scene {
     this.player.setTint(mode.tint);
     this.bgFar.setTint(mode.tint);
     this.bgMid.setTint(mode.tint);
-    this.ground.children.iterate(child => child.setTint(mode.tint));
   }
 
   updateHud() {
@@ -379,7 +336,7 @@ class TestScene extends Phaser.Scene {
     const key2 = `${b}+${a}`;
     const result = CODEC_FUSIONS[key] || CODEC_FUSIONS[key2];
     if (result === 'unlock') {
-      if (this.door) this.door.destroy();
+      this.levelManager.doors.clear(true, true);
     } else if (result === 'hallucination') {
       this.game.canvas.style.filter = 'hue-rotate(180deg)';
       this.time.addEvent({
