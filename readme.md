@@ -10,12 +10,18 @@ combat to rebuild the original timeline.
 1. Clone this repository.
 2. Open `index.html` in a modern browser or serve it with a local static
    server.
-3. Controls will be defined in future iterations.
+3. Use the arrow keys to move and jump.
+
+## Features
+
+- Side-view movement with jumping and collision.
+- Layered backgrounds with parallax depth.
+- Basic physics including gravity, friction, and camera follow.
 
 ## Project Structure
 
 - `index.html` – entry point for the game.
-- `main.js` – placeholder for game logic.
+- `main.js` – main game logic and prototype scene.
 - `config.js` – configuration settings.
 
 ## Contributing
