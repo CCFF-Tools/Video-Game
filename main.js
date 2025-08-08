@@ -24,28 +24,32 @@ const FORMAT_MODES = {
     tint: 0x8b6d56,
     speed: 0.7,
     jump: 0.8,
-    gravity: 900
+    gravity: 900,
+    abilities: { breakBlocks: true }
   },
   '8mm': {
     filter: 'grayscale(1) blur(1px)',
     tint: 0xe0d0b0,
     speed: 0.8,
     jump: 0.9,
-    gravity: 850
+    gravity: 850,
+    abilities: { slowTime: true }
   },
   MPEG2: {
     filter: 'saturate(1.4) contrast(1.1)',
     tint: 0xaaddff,
     speed: 1,
     jump: 1,
-    gravity: 800
+    gravity: 800,
+    abilities: {}
   },
   MiniDV: {
     filter: 'brightness(1.2) contrast(1.2)',
     tint: 0xfff0ff,
     speed: 1.2,
     jump: 1.1,
-    gravity: 750
+    gravity: 750,
+    abilities: {}
   }
 };
 
@@ -207,6 +211,40 @@ class TestScene extends Phaser.Scene {
       }
     );
 
+    this.abilityBlocks = this.physics.add.staticGroup();
+    const frag = this.add
+      .rectangle(400, 500, 40, 20, 0x996633)
+      .setOrigin(0.5, 0.5);
+    this.physics.add.existing(frag, true);
+    frag.requiredAbility = 'breakBlocks';
+    this.abilityBlocks.add(frag);
+    this.physics.add.collider(
+      this.player,
+      this.abilityBlocks,
+      (player, block) => {
+        if (
+          this.currentAbilities.breakBlocks &&
+          player.body.velocity.y > 0
+        ) {
+          block.destroy();
+        }
+      }
+    );
+
+    this.hazards = this.physics.add.group();
+    const hazard = this.hazards
+      .create(600, 450, 'bullet')
+      .setTint(0xff0000);
+    hazard.setVelocityX(150);
+    hazard.setBounce(1, 0);
+    hazard.setCollideWorldBounds(true);
+    this.physics.add.collider(this.hazards, this.levelManager.platforms);
+    this.physics.add.overlap(
+      this.player,
+      this.hazards,
+      () => this.takeDamage(10)
+    );
+
     this.inventory = [];
     this.codecs = this.physics.add.group({ classType: CodecItem });
     this.codecs.add(new CodecItem(this, 300, 520, 'H264'));
@@ -231,6 +269,7 @@ class TestScene extends Phaser.Scene {
     const mode = FORMAT_MODES[name];
     if (!mode) return;
     this.currentMode = name;
+    this.currentAbilities = mode.abilities || {};
     this.game.canvas.style.filter = mode.filter;
     this.physics.world.gravity.y = mode.gravity;
     this.moveAccel = 600 * mode.speed;
@@ -242,6 +281,9 @@ class TestScene extends Phaser.Scene {
     this.player.setTint(mode.tint);
     this.bgFar.setTint(mode.tint);
     this.bgMid.setTint(mode.tint);
+    const scale = this.currentAbilities.slowTime ? 0.5 : 1;
+    this.time.timeScale = scale;
+    this.physics.world.timeScale = scale;
   }
 
   updateHud() {
