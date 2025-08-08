@@ -1,5 +1,48 @@
 import { config } from './config.js';
 
+const MODES = {
+  betamax: {
+    filter: 'grayscale(1)',
+    playerTint: 0x999999,
+    bgTint: 0x666666,
+    move: 400,
+    jump: -300,
+    gravity: 800,
+    maxX: 180,
+    maxY: 500
+  },
+  eightmm: {
+    filter: 'sepia(0.8)',
+    playerTint: 0xffcc99,
+    bgTint: 0xffddaa,
+    move: 350,
+    jump: -260,
+    gravity: 600,
+    maxX: 160,
+    maxY: 450
+  },
+  mpeg2: {
+    filter: 'saturate(2) contrast(1.2)',
+    playerTint: 0x99ff99,
+    bgTint: 0xbbffbb,
+    move: 500,
+    jump: -340,
+    gravity: 900,
+    maxX: 220,
+    maxY: 520
+  },
+  minidv: {
+    filter: 'brightness(1.2) saturate(1.2)',
+    playerTint: 0x99ccff,
+    bgTint: 0xbbddff,
+    move: 450,
+    jump: -320,
+    gravity: 700,
+    maxX: 200,
+    maxY: 480
+  }
+};
+
 class TestScene extends Phaser.Scene {
   constructor() {
     super('test');
@@ -26,29 +69,29 @@ class TestScene extends Phaser.Scene {
   }
 
   create() {
-    this.add
+    this.bgFar = this.add
       .image(0, 0, 'bg-far')
       .setOrigin(0)
       .setScrollFactor(0)
       .setDisplaySize(1600, 600);
-    this.add
+    this.bgMid = this.add
       .image(0, 0, 'bg-mid')
       .setOrigin(0)
       .setScrollFactor(0.3)
       .setDisplaySize(1600, 600);
 
-    const platforms = this.physics.add.staticGroup();
-    platforms
+    this.platforms = this.physics.add.staticGroup();
+    this.platforms
       .create(400, 568, 'ground')
       .setScale(2)
       .refreshBody();
-    platforms
+    this.platforms
       .create(1200, 568, 'ground')
       .setScale(2)
       .refreshBody();
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
+    this.platforms.create(600, 400, 'ground');
+    this.platforms.create(50, 250, 'ground');
+    this.platforms.create(750, 220, 'ground');
 
     this.player = this.physics.add.sprite(100, 450, 'dude');
     this.player.setBounce(0.1);
@@ -56,9 +99,15 @@ class TestScene extends Phaser.Scene {
     this.player.setDragX(1000);
     this.player.setMaxVelocity(300, 500);
 
-    this.physics.add.collider(this.player, platforms);
+    this.physics.add.collider(this.player, this.platforms);
 
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.modeKeys = this.input.keyboard.addKeys({
+      betamax: Phaser.Input.Keyboard.KeyCodes.ONE,
+      eightmm: Phaser.Input.Keyboard.KeyCodes.TWO,
+      mpeg2: Phaser.Input.Keyboard.KeyCodes.THREE,
+      minidv: Phaser.Input.Keyboard.KeyCodes.FOUR
+    });
 
     this.cameras.main.setBounds(0, 0, 1600, 600);
     this.physics.world.setBounds(0, 0, 1600, 600);
@@ -89,17 +138,32 @@ class TestScene extends Phaser.Scene {
       frameRate: 10,
       repeat: -1
     });
+
+    this.applyMode('betamax');
   }
 
   update() {
+    if (Phaser.Input.Keyboard.JustDown(this.modeKeys.betamax)) {
+      this.applyMode('betamax');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.modeKeys.eightmm)) {
+      this.applyMode('eightmm');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.modeKeys.mpeg2)) {
+      this.applyMode('mpeg2');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.modeKeys.minidv)) {
+      this.applyMode('minidv');
+    }
+
     const onGround = this.player.body.blocked.down;
     this.player.setDragX(onGround ? 1000 : 50);
 
     if (this.cursors.left.isDown) {
-      this.player.setAccelerationX(-600);
+      this.player.setAccelerationX(-this.moveAccel);
       this.player.anims.play('left', true);
     } else if (this.cursors.right.isDown) {
-      this.player.setAccelerationX(600);
+      this.player.setAccelerationX(this.moveAccel);
       this.player.anims.play('right', true);
     } else {
       this.player.setAccelerationX(0);
@@ -107,8 +171,24 @@ class TestScene extends Phaser.Scene {
     }
 
     if (this.cursors.up.isDown && onGround) {
-      this.player.setVelocityY(-400);
+      this.player.setVelocityY(this.jumpVel);
     }
+  }
+
+  applyMode(name) {
+    const mode = MODES[name];
+    if (!mode) return;
+    this.game.canvas.style.filter = mode.filter;
+    this.bgFar.setTint(mode.bgTint);
+    this.bgMid.setTint(mode.bgTint);
+    this.platforms.children.iterate(child => {
+      child.setTint(mode.bgTint);
+    });
+    this.player.setTint(mode.playerTint);
+    this.physics.world.gravity.y = mode.gravity;
+    this.player.setMaxVelocity(mode.maxX, mode.maxY);
+    this.moveAccel = mode.move;
+    this.jumpVel = mode.jump;
   }
 }
 
