@@ -32,6 +32,7 @@ Primordial Slush.
 ## Features
 
 - Side-view movement with jumping and collision.
+- Juno sprite with walk, idle, and jump animations.
 - Layered backgrounds with parallax depth.
 - Basic physics including gravity, friction, and camera follow.
 - Level manager loads room definitions for multi-room exploration.
