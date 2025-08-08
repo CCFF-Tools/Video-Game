@@ -6,6 +6,7 @@ class TestScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.text('script', 'script.txt');
     this.load.image(
       'bg-far',
       'https://labs.phaser.io/assets/skies/space3.png'
@@ -37,18 +38,45 @@ class TestScene extends Phaser.Scene {
       .setScrollFactor(0.3)
       .setDisplaySize(1600, 600);
 
-    const platforms = this.physics.add.staticGroup();
-    platforms
+    const ground = this.physics.add.staticGroup();
+    ground
       .create(400, 568, 'ground')
       .setScale(2)
       .refreshBody();
-    platforms
+    ground
       .create(1200, 568, 'ground')
       .setScale(2)
       .refreshBody();
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
+
+    const script = this.cache.text.get('script');
+    const lines = script
+      ? script.trim().split('\n')
+      : [
+          'Default platform 1',
+          'Default platform 2',
+          'Default platform 3'
+        ];
+
+    const textPlatforms = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+    let x = 200;
+    lines.forEach((line, i) => {
+      const y = 400 - i * 80;
+      const text = this.add
+        .text(x, y, line, {
+          fontSize: '20px',
+          color: '#fff',
+          backgroundColor: '#000'
+        })
+        .setPadding(4);
+      this.physics.add.existing(text);
+      text.body.setAllowGravity(false);
+      text.body.setImmovable(true);
+      textPlatforms.add(text);
+      x += text.width + 50;
+    });
 
     this.player = this.physics.add.sprite(100, 450, 'dude');
     this.player.setBounce(0.1);
@@ -56,12 +84,14 @@ class TestScene extends Phaser.Scene {
     this.player.setDragX(1000);
     this.player.setMaxVelocity(300, 500);
 
-    this.physics.add.collider(this.player, platforms);
+    this.physics.add.collider(this.player, ground);
+    this.physics.add.collider(this.player, textPlatforms);
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.cameras.main.setBounds(0, 0, 1600, 600);
-    this.physics.world.setBounds(0, 0, 1600, 600);
+    const worldWidth = Math.max(1600, x + 200);
+    this.cameras.main.setBounds(0, 0, worldWidth, 600);
+    this.physics.world.setBounds(0, 0, worldWidth, 600);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
     this.anims.create({
