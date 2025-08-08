@@ -21,6 +21,17 @@ media.
 - Script-driven platforms generated from `script.txt` lines.
 - Popsicle enemies with melting, freezing, and reforming states.
 - Flavor-based weaknesses and dripping attacks with particle effects.
+- Video format modes (Betamax, 8mm, MPEG2, MiniDV) altering visuals and
+  physics; press number keys 1–4 to switch.
+
+## Format Modes
+
+Switch between media styles for different looks and physics tweaks:
+
+1 - Betamax: sepia filter with heavier gravity.
+2 - 8mm: grainy monochrome and slower movement.
+3 - MPEG2: vibrant colors with baseline physics.
+4 - MiniDV: bright, high-contrast visuals and lighter gravity.
 
 ## Project Structure
 
