@@ -10,13 +10,15 @@ combat to rebuild the original timeline.
 1. Clone this repository.
 2. Open `index.html` in a modern browser or serve it with a local static
    server.
-3. Use the arrow keys to move and jump.
+3. Use the arrow keys to move and jump. Press `T` to shift objects through
+   time.
 
 ## Features
 
 - Side-view movement with jumping and collision.
 - Layered backgrounds with parallax depth.
 - Basic physics including gravity, friction, and camera follow.
+- Time-shift objects between past and future states with the `T` key.
 
 ## Project Structure
 
