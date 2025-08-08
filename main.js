@@ -1,6 +1,37 @@
 import { config } from './config.js';
 import { PopsicleEnemy } from './popsicle.js';
 
+const FORMAT_MODES = {
+  Betamax: {
+    filter: 'contrast(0.7) sepia(0.9)',
+    tint: 0x8b6d56,
+    speed: 0.7,
+    jump: 0.8,
+    gravity: 900
+  },
+  '8mm': {
+    filter: 'grayscale(1) blur(1px)',
+    tint: 0xe0d0b0,
+    speed: 0.8,
+    jump: 0.9,
+    gravity: 850
+  },
+  MPEG2: {
+    filter: 'saturate(1.4) contrast(1.1)',
+    tint: 0xaaddff,
+    speed: 1,
+    jump: 1,
+    gravity: 800
+  },
+  MiniDV: {
+    filter: 'brightness(1.2) contrast(1.2)',
+    tint: 0xfff0ff,
+    speed: 1.2,
+    jump: 1.1,
+    gravity: 750
+  }
+};
+
 class TestScene extends Phaser.Scene {
   constructor() {
     super('test');
@@ -43,12 +74,12 @@ class TestScene extends Phaser.Scene {
   }
 
   create() {
-    this.add
+    this.bgFar = this.add
       .image(0, 0, 'bg-far')
       .setOrigin(0)
       .setScrollFactor(0)
       .setDisplaySize(1600, 600);
-    this.add
+    this.bgMid = this.add
       .image(0, 0, 'bg-mid')
       .setOrigin(0)
       .setScrollFactor(0.3)
@@ -106,6 +137,13 @@ class TestScene extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.fireKey = this.input.keyboard.addKey('Z');
     this.iceKey = this.input.keyboard.addKey('X');
+
+    this.modeKeys = this.input.keyboard.addKeys({
+      one: Phaser.Input.Keyboard.KeyCodes.ONE,
+      two: Phaser.Input.Keyboard.KeyCodes.TWO,
+      three: Phaser.Input.Keyboard.KeyCodes.THREE,
+      four: Phaser.Input.Keyboard.KeyCodes.FOUR
+    });
 
     const worldWidth = Math.max(1600, x + 200);
     this.cameras.main.setBounds(0, 0, worldWidth, 600);
@@ -168,18 +206,47 @@ class TestScene extends Phaser.Scene {
         });
       }
     );
+
+    this.setMode('Betamax');
+  }
+
+  setMode(name) {
+    const mode = FORMAT_MODES[name];
+    if (!mode) return;
+    this.game.canvas.style.filter = mode.filter;
+    this.physics.world.gravity.y = mode.gravity;
+    this.moveAccel = 600 * mode.speed;
+    this.jumpVelocity = -400 * mode.jump;
+    this.player.setMaxVelocity(
+      300 * mode.speed,
+      500 * mode.jump
+    );
+    this.player.setTint(mode.tint);
+    this.bgFar.setTint(mode.tint);
+    this.bgMid.setTint(mode.tint);
+    this.ground.children.iterate(child => child.setTint(mode.tint));
   }
 
   update() {
+    if (Phaser.Input.Keyboard.JustDown(this.modeKeys.one)) {
+      this.setMode('Betamax');
+    } else if (Phaser.Input.Keyboard.JustDown(this.modeKeys.two)) {
+      this.setMode('8mm');
+    } else if (Phaser.Input.Keyboard.JustDown(this.modeKeys.three)) {
+      this.setMode('MPEG2');
+    } else if (Phaser.Input.Keyboard.JustDown(this.modeKeys.four)) {
+      this.setMode('MiniDV');
+    }
+
     const onGround = this.player.body.blocked.down;
     this.player.setDragX(onGround ? 1000 : 50);
 
     if (this.cursors.left.isDown) {
-      this.player.setAccelerationX(-600);
+      this.player.setAccelerationX(-this.moveAccel);
       this.player.anims.play('left', true);
       this.player.lastDir = -1;
     } else if (this.cursors.right.isDown) {
-      this.player.setAccelerationX(600);
+      this.player.setAccelerationX(this.moveAccel);
       this.player.anims.play('right', true);
       this.player.lastDir = 1;
     } else {
@@ -195,7 +262,7 @@ class TestScene extends Phaser.Scene {
     }
 
     if (this.cursors.up.isDown && onGround) {
-      this.player.setVelocityY(-400);
+      this.player.setVelocityY(this.jumpVelocity);
     }
   }
 
