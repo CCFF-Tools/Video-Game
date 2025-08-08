@@ -55,7 +55,7 @@ export class PopsicleEnemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   melt() {
-    this.state = 'melted';
+    this.state = 'collection';
     this.disableBody(true, false);
     const particles = this.scene.add.particles('drip');
     particles.setTint(this.tintTopLeft);
@@ -67,10 +67,68 @@ export class PopsicleEnemy extends Phaser.Physics.Arcade.Sprite {
       quantity: 20
     });
     this.scene.time.addEvent({
-      delay: 3000,
-      callback: this.reform,
+      delay: 600,
+      callback: this.crystallize,
       callbackScope: this
     });
+  }
+
+  crystallize() {
+    this.state = 'crystallizing';
+    this.scene.time.addEvent({
+      delay: 600,
+      callback: this.scaffold,
+      callbackScope: this
+    });
+  }
+
+  scaffold() {
+    this.state = 'scaffold';
+    this.scene.time.addEvent({
+      delay: 600,
+      callback: this.reassemble,
+      callbackScope: this
+    });
+  }
+
+  reassemble() {
+    this.state = 'reassembly';
+    this.scene.time.addEvent({
+      delay: 600,
+      callback: this.calibrate,
+      callbackScope: this
+    });
+  }
+
+  calibrate() {
+    this.state = 'calibration';
+    this.scene.time.addEvent({
+      delay: 600,
+      callback: this.release,
+      callbackScope: this
+    });
+  }
+
+  release() {
+    if (Math.random() < 0.2) {
+      this.recycle();
+      return;
+    }
+    this.enableBody(true, this.x, this.y, true, true);
+    this.state = 'solid';
+    this.setScale(0);
+    this.scene.tweens.add({
+      targets: this,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 800
+    });
+  }
+
+  recycle() {
+    this.state = 'recycled';
+    this.dripEvent.remove(false);
+    this.destroy();
   }
 
   freeze() {
@@ -85,18 +143,6 @@ export class PopsicleEnemy extends Phaser.Physics.Arcade.Sprite {
           PopsicleEnemy.FLAVOR_TINTS[this.flavor] || 0xffffff
         );
       }
-    });
-  }
-
-  reform() {
-    this.enableBody(true, this.x, this.y, true, true);
-    this.state = 'solid';
-    this.setScale(0);
-    this.scene.tweens.add({
-      targets: this,
-      scaleX: 1,
-      scaleY: 1,
-      duration: 800
     });
   }
 }

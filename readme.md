@@ -4,6 +4,23 @@ A browser-based surrealist sci-fi platformer concept. Play as Juno, a junior
 archivist navigating a glitching research facility fragmented across time and
 media.
 
+## Setting
+
+The game takes place at the Alden Institute for Temporal Media and Experimental
+Archives, located at 3100 Alden Drive. The brutalist-meets-neofuturist complex
+features a spire that tracks the sun, retractable copper sunshades shaped like
+timecode symbols, and a countdown above the door that never reaches zero. The
+interior includes a lobby filled with looping LED murals, a basement archive of
+obsolete media formats, and edit bays named after dead philosophers.
+
+## Lab 32: Popsicle Reconstitution
+
+In Bay 3B, melted popsicles undergo a six-phase journey from slush to sentience
+inspired by the procedures of Lab 32. Samples are collected, crystallized,
+scaffolded onto memory-anchored sticks, refrozen with sonic nostalgia pulses,
+calibrated by mechanical tasters, then either archived or recycled into the
+Primordial Slush.
+
 ## Getting Started
 
 1. Clone this repository.
@@ -19,7 +36,7 @@ media.
 - Basic physics including gravity, friction, and camera follow.
 - Simple room layout for movement testing.
 - Script-driven platforms generated from `script.txt` lines.
-- Popsicle enemies with melting, freezing, and reforming states.
+- Popsicle enemies that progress through Lab 32's reconstitution phases.
 - Flavor-based weaknesses and dripping attacks with particle effects.
 - Video format modes (Betamax, 8mm, MPEG2, MiniDV) altering visuals and
   physics; press number keys 1–4 to switch.
