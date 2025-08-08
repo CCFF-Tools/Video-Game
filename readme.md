@@ -26,6 +26,9 @@ media.
 - Collectible codec items with compatibility rules.
 - Fuse codecs to unlock doors or trigger hallucinations.
 - Puzzle combinations yield unique effects or spectacular failures.
+- Timecode HUD displaying playback integrity and energy levels.
+- Playback integrity decays when hit or during codec glitches.
+- Final level concept where the player scrubs footage to fix the timeline.
 
 ## Format Modes
 

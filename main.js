@@ -2,6 +2,21 @@ import { config } from './config.js';
 import { PopsicleEnemy } from './popsicle.js';
 import { CodecItem, CODEC_FUSIONS } from './codec.js';
 
+function percentToTimecode(percent) {
+  const totalFrames = Math.floor((percent / 100) * 60 * 24);
+  const seconds = Math.floor(totalFrames / 24);
+  const frames = totalFrames % 24;
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return (
+    String(minutes).padStart(2, '0') +
+    ':' +
+    String(secs).padStart(2, '0') +
+    ':' +
+    String(frames).padStart(2, '0')
+  );
+}
+
 const FORMAT_MODES = {
   Betamax: {
     filter: 'contrast(0.7) sepia(0.9)',
@@ -158,6 +173,15 @@ class TestScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, worldWidth, 600);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
+    this.playbackIntegrity = 100;
+    this.energy = 100;
+    this.integrityText = this.add
+      .text(16, 16, '', { fontSize: '16px', color: '#0f0' })
+      .setScrollFactor(0);
+    this.energyText = this.add
+      .text(16, 36, '', { fontSize: '16px', color: '#0ff' })
+      .setScrollFactor(0);
+
     this.anims.create({
       key: 'left',
       frames: this.anims.generateFrameNumbers('dude', {
@@ -192,6 +216,11 @@ class TestScene extends Phaser.Scene {
     });
     this.popsicles.add(new PopsicleEnemy(this, 600, 450, 'cherry'));
     this.popsicles.add(new PopsicleEnemy(this, 800, 450, 'lime'));
+    this.physics.add.collider(
+      this.player,
+      this.popsicles,
+      () => this.takeDamage(10)
+    );
     this.physics.add.collider(this.popsicles, this.ground);
     this.physics.add.collider(this.drops, this.ground, drop => drop.destroy());
     this.physics.add.overlap(
@@ -208,6 +237,7 @@ class TestScene extends Phaser.Scene {
       (player, drop) => {
         drop.destroy();
         player.setTint(0x9999ff);
+        this.takeDamage(5);
         this.time.addEvent({
           delay: 500,
           callback: () => player.clearTint()
@@ -236,6 +266,7 @@ class TestScene extends Phaser.Scene {
     this.fuseKey = this.input.keyboard.addKey('F');
 
     this.setMode('Betamax');
+    this.updateHud();
   }
 
   setMode(name) {
@@ -254,6 +285,26 @@ class TestScene extends Phaser.Scene {
     this.bgFar.setTint(mode.tint);
     this.bgMid.setTint(mode.tint);
     this.ground.children.iterate(child => child.setTint(mode.tint));
+  }
+
+  updateHud() {
+    this.integrityText.setText(
+      `INT ${percentToTimecode(this.playbackIntegrity)}`
+    );
+    this.energyText.setText(`NRG ${percentToTimecode(this.energy)}`);
+  }
+
+  takeDamage(amount) {
+    this.playbackIntegrity = Math.max(
+      0,
+      this.playbackIntegrity - amount
+    );
+  }
+
+  useEnergy(amount) {
+    if (this.energy < amount) return false;
+    this.energy -= amount;
+    return true;
   }
 
   update() {
@@ -296,9 +347,13 @@ class TestScene extends Phaser.Scene {
     if (this.cursors.up.isDown && onGround) {
       this.player.setVelocityY(this.jumpVelocity);
     }
+
+    this.energy = Math.min(100, this.energy + 0.05);
+    this.updateHud();
   }
 
   fireBullet(flavor) {
+    if (!this.useEnergy(5)) return;
     const bullet = this.physics.add.image(
       this.player.x,
       this.player.y,
@@ -338,6 +393,7 @@ class TestScene extends Phaser.Scene {
         delay: 500,
         callback: () => this.player.clearTint()
       });
+      this.takeDamage(10);
     }
   }
 }
