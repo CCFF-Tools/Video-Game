@@ -17,12 +17,14 @@ media.
 - Layered backgrounds with parallax depth.
 - Basic physics including gravity, friction, and camera follow.
 - Simple room layout for movement testing.
+- Script-driven platforms generated from `script.txt` lines.
 
 ## Project Structure
 
 - `index.html` – entry point for the game.
 - `main.js` – main game logic and prototype scene.
 - `config.js` – configuration settings.
+- `script.txt` – lines used to build text platforms.
 
 ## Contributing
 
