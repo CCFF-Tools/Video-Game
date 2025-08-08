@@ -1,5 +1,6 @@
 import { config } from './config.js';
 import { PopsicleEnemy } from './popsicle.js';
+import { CodecItem, CODEC_FUSIONS } from './codec.js';
 
 const FORMAT_MODES = {
   Betamax: {
@@ -70,6 +71,13 @@ class TestScene extends Phaser.Scene {
     g.clear();
     g.fillCircle(2, 2, 2);
     g.generateTexture('drip', 4, 4);
+    g.clear();
+    g.fillRect(0, 0, 16, 16);
+    g.generateTexture('codec', 16, 16);
+    g.clear();
+    g.fillStyle(0x444444, 1);
+    g.fillRect(0, 0, 40, 80);
+    g.generateTexture('door', 40, 80);
     g.destroy();
   }
 
@@ -207,12 +215,33 @@ class TestScene extends Phaser.Scene {
       }
     );
 
+    this.inventory = [];
+    this.codecs = this.physics.add.group({ classType: CodecItem });
+    this.codecs.add(new CodecItem(this, 300, 520, 'H264'));
+    this.codecs.add(new CodecItem(this, 500, 520, 'AAC'));
+    this.codecs.add(new CodecItem(this, 700, 520, 'VP9'));
+    this.codecs.add(new CodecItem(this, 900, 520, 'OGG'));
+    this.physics.add.overlap(
+      this.player,
+      this.codecs,
+      (player, codec) => {
+        this.inventory.push(codec.name);
+        codec.destroy();
+      }
+    );
+    this.door = this.physics.add
+      .staticImage(1100, 488, 'door')
+      .setOrigin(0.5, 1);
+    this.physics.add.collider(this.player, this.door);
+    this.fuseKey = this.input.keyboard.addKey('F');
+
     this.setMode('Betamax');
   }
 
   setMode(name) {
     const mode = FORMAT_MODES[name];
     if (!mode) return;
+    this.currentMode = name;
     this.game.canvas.style.filter = mode.filter;
     this.physics.world.gravity.y = mode.gravity;
     this.moveAccel = 600 * mode.speed;
@@ -260,6 +289,9 @@ class TestScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.iceKey)) {
       this.fireBullet('ice');
     }
+    if (Phaser.Input.Keyboard.JustDown(this.fuseKey)) {
+      this.fuseCodecs();
+    }
 
     if (this.cursors.up.isDown && onGround) {
       this.player.setVelocityY(this.jumpVelocity);
@@ -282,6 +314,31 @@ class TestScene extends Phaser.Scene {
       callback: () => bullet.destroy()
     });
     this.bullets.add(bullet);
+  }
+
+  fuseCodecs() {
+    if (this.inventory.length < 2) return;
+    const a = this.inventory.shift();
+    const b = this.inventory.shift();
+    const key = `${a}+${b}`;
+    const key2 = `${b}+${a}`;
+    const result = CODEC_FUSIONS[key] || CODEC_FUSIONS[key2];
+    if (result === 'unlock') {
+      if (this.door) this.door.destroy();
+    } else if (result === 'hallucination') {
+      this.game.canvas.style.filter = 'hue-rotate(180deg)';
+      this.time.addEvent({
+        delay: 1000,
+        callback: () => this.setMode(this.currentMode)
+      });
+    } else {
+      this.cameras.main.shake(500, 0.01);
+      this.player.setTint(0xff0000);
+      this.time.addEvent({
+        delay: 500,
+        callback: () => this.player.clearTint()
+      });
+    }
   }
 }
 

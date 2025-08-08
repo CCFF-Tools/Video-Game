@@ -23,6 +23,9 @@ media.
 - Flavor-based weaknesses and dripping attacks with particle effects.
 - Video format modes (Betamax, 8mm, MPEG2, MiniDV) altering visuals and
   physics; press number keys 1–4 to switch.
+- Collectible codec items with compatibility rules.
+- Fuse codecs to unlock doors or trigger hallucinations.
+- Puzzle combinations yield unique effects or spectacular failures.
 
 ## Format Modes
 
