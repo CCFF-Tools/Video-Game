@@ -38,6 +38,8 @@ Primordial Slush.
 - Three interconnected rooms enable backtracking and hidden paths.
 - Popsicle enemies that progress through Lab 32's reconstitution phases.
 - Flavor-based weaknesses and dripping attacks with particle effects.
+- Drone and turret enemies using a shared base class with media mode or
+  bullet flavor weaknesses.
 - Video format modes (Betamax, 8mm, MPEG2, MiniDV) altering visuals and
   physics; press number keys 1–4 to switch.
 - Mode-specific abilities like block breaking or time slowing that
@@ -65,6 +67,7 @@ Switch between media styles for different looks and physics tweaks:
 - `config.js` – configuration settings.
 - `src/level/manager.js` – loads room data and handles transitions.
 - `src/level/rooms/` – JSON room definitions.
+- `src/enemies/` – base class and enemy types.
 
 ## Contributing
 

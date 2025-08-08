@@ -2,6 +2,8 @@ import { config } from './config.js';
 import { PopsicleEnemy } from './popsicle.js';
 import { CodecItem, CODEC_FUSIONS } from './codec.js';
 import { LevelManager } from './src/level/manager.js';
+import { DroneEnemy } from './src/enemies/drone.js';
+import { TurretEnemy } from './src/enemies/turret.js';
 
 function percentToTimecode(percent) {
   const totalFrames = Math.floor((percent / 100) * 60 * 24);
@@ -92,6 +94,14 @@ class TestScene extends Phaser.Scene {
     g.fillRect(0, 0, 16, 16);
     g.generateTexture('codec', 16, 16);
     g.clear();
+    g.fillStyle(0x00ff00, 1);
+    g.fillRect(0, 0, 20, 20);
+    g.generateTexture('drone', 20, 20);
+    g.clear();
+    g.fillStyle(0xff00ff, 1);
+    g.fillRect(0, 0, 20, 20);
+    g.generateTexture('turret', 20, 20);
+    g.clear();
     g.fillStyle(0x444444, 1);
     g.fillRect(0, 0, 40, 80);
     g.generateTexture('door', 40, 80);
@@ -175,6 +185,16 @@ class TestScene extends Phaser.Scene {
     });
     this.popsicles.add(new PopsicleEnemy(this, 600, 450, 'cherry'));
     this.popsicles.add(new PopsicleEnemy(this, 800, 450, 'lime'));
+    this.drones = this.physics.add.group({
+      classType: DroneEnemy,
+      runChildUpdate: true
+    });
+    this.drones.add(new DroneEnemy(this, 400, 300));
+    this.turrets = this.physics.add.group({
+      classType: TurretEnemy,
+      runChildUpdate: true
+    });
+    this.turrets.add(new TurretEnemy(this, 1000, 520));
     this.physics.add.collider(
       this.player,
       this.popsicles,
@@ -182,6 +202,24 @@ class TestScene extends Phaser.Scene {
     );
     this.physics.add.collider(
       this.popsicles,
+      this.levelManager.platforms
+    );
+    this.physics.add.collider(
+      this.player,
+      this.drones,
+      () => this.takeDamage(10)
+    );
+    this.physics.add.collider(
+      this.drones,
+      this.levelManager.platforms
+    );
+    this.physics.add.collider(
+      this.player,
+      this.turrets,
+      () => this.takeDamage(10)
+    );
+    this.physics.add.collider(
+      this.turrets,
       this.levelManager.platforms
     );
     this.physics.add.collider(
@@ -194,6 +232,22 @@ class TestScene extends Phaser.Scene {
       this.popsicles,
       (popsicle, bullet) => {
         popsicle.hit(bullet.flavor);
+        bullet.destroy();
+      }
+    );
+    this.physics.add.overlap(
+      this.bullets,
+      this.drones,
+      (drone, bullet) => {
+        drone.hit(bullet.flavor, this.currentMode);
+        bullet.destroy();
+      }
+    );
+    this.physics.add.overlap(
+      this.bullets,
+      this.turrets,
+      (turret, bullet) => {
+        turret.hit(bullet.flavor, this.currentMode);
         bullet.destroy();
       }
     );
