@@ -10,6 +10,7 @@ media.
 2. Open `index.html` in a modern browser or serve it with a local static
    server.
 3. Use the arrow keys to move and jump.
+4. Press `Z` for fire shots and `X` for ice shots.
 
 ## Features
 
@@ -18,6 +19,8 @@ media.
 - Basic physics including gravity, friction, and camera follow.
 - Simple room layout for movement testing.
 - Script-driven platforms generated from `script.txt` lines.
+- Popsicle enemies with melting, freezing, and reforming states.
+- Flavor-based weaknesses and dripping attacks with particle effects.
 
 ## Project Structure
 

@@ -1,4 +1,5 @@
 import { config } from './config.js';
+import { PopsicleEnemy } from './popsicle.js';
 
 class TestScene extends Phaser.Scene {
   constructor() {
@@ -24,6 +25,21 @@ class TestScene extends Phaser.Scene {
       'https://labs.phaser.io/assets/sprites/dude.png',
       { frameWidth: 32, frameHeight: 48 }
     );
+
+    const g = this.add.graphics();
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(8, 32, 4, 8);
+    g.fillStyle(0xff0000, 1);
+    g.fillRect(0, 0, 20, 32);
+    g.generateTexture('popsicle', 20, 40);
+    g.clear();
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(4, 4, 4);
+    g.generateTexture('bullet', 8, 8);
+    g.clear();
+    g.fillCircle(2, 2, 2);
+    g.generateTexture('drip', 4, 4);
+    g.destroy();
   }
 
   create() {
@@ -38,12 +54,12 @@ class TestScene extends Phaser.Scene {
       .setScrollFactor(0.3)
       .setDisplaySize(1600, 600);
 
-    const ground = this.physics.add.staticGroup();
-    ground
+    this.ground = this.physics.add.staticGroup();
+    this.ground
       .create(400, 568, 'ground')
       .setScale(2)
       .refreshBody();
-    ground
+    this.ground
       .create(1200, 568, 'ground')
       .setScale(2)
       .refreshBody();
@@ -84,10 +100,12 @@ class TestScene extends Phaser.Scene {
     this.player.setDragX(1000);
     this.player.setMaxVelocity(300, 500);
 
-    this.physics.add.collider(this.player, ground);
+    this.physics.add.collider(this.player, this.ground);
     this.physics.add.collider(this.player, textPlatforms);
 
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.fireKey = this.input.keyboard.addKey('Z');
+    this.iceKey = this.input.keyboard.addKey('X');
 
     const worldWidth = Math.max(1600, x + 200);
     this.cameras.main.setBounds(0, 0, worldWidth, 600);
@@ -119,6 +137,37 @@ class TestScene extends Phaser.Scene {
       frameRate: 10,
       repeat: -1
     });
+
+    this.bullets = this.physics.add.group();
+    this.drops = this.physics.add.group();
+    this.popsicles = this.physics.add.group({
+      classType: PopsicleEnemy,
+      runChildUpdate: true
+    });
+    this.popsicles.add(new PopsicleEnemy(this, 600, 450, 'cherry'));
+    this.popsicles.add(new PopsicleEnemy(this, 800, 450, 'lime'));
+    this.physics.add.collider(this.popsicles, this.ground);
+    this.physics.add.collider(this.drops, this.ground, drop => drop.destroy());
+    this.physics.add.overlap(
+      this.bullets,
+      this.popsicles,
+      (popsicle, bullet) => {
+        popsicle.hit(bullet.flavor);
+        bullet.destroy();
+      }
+    );
+    this.physics.add.overlap(
+      this.player,
+      this.drops,
+      (player, drop) => {
+        drop.destroy();
+        player.setTint(0x9999ff);
+        this.time.addEvent({
+          delay: 500,
+          callback: () => player.clearTint()
+        });
+      }
+    );
   }
 
   update() {
@@ -128,17 +177,44 @@ class TestScene extends Phaser.Scene {
     if (this.cursors.left.isDown) {
       this.player.setAccelerationX(-600);
       this.player.anims.play('left', true);
+      this.player.lastDir = -1;
     } else if (this.cursors.right.isDown) {
       this.player.setAccelerationX(600);
       this.player.anims.play('right', true);
+      this.player.lastDir = 1;
     } else {
       this.player.setAccelerationX(0);
       this.player.anims.play('turn', true);
     }
 
+    if (Phaser.Input.Keyboard.JustDown(this.fireKey)) {
+      this.fireBullet('fire');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.iceKey)) {
+      this.fireBullet('ice');
+    }
+
     if (this.cursors.up.isDown && onGround) {
       this.player.setVelocityY(-400);
     }
+  }
+
+  fireBullet(flavor) {
+    const bullet = this.physics.add.image(
+      this.player.x,
+      this.player.y,
+      'bullet'
+    );
+    bullet.setTint(flavor === 'fire' ? 0xffa500 : 0x00ffff);
+    bullet.flavor = flavor;
+    const dir = this.player.lastDir || 1;
+    bullet.setVelocityX(400 * dir);
+    bullet.setGravityY(-this.physics.world.gravity.y);
+    this.time.addEvent({
+      delay: 2000,
+      callback: () => bullet.destroy()
+    });
+    this.bullets.add(bullet);
   }
 }
 
