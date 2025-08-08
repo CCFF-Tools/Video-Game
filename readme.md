@@ -10,13 +10,15 @@ combat to rebuild the original timeline.
 1. Clone this repository.
 2. Open `index.html` in a modern browser or serve it with a local static
    server.
-3. Use the arrow keys to move and jump.
+3. Use the arrow keys to move and jump. Press 1-4 to switch format modes.
 
 ## Features
 
 - Side-view movement with jumping and collision.
 - Layered backgrounds with parallax depth.
 - Basic physics including gravity, friction, and camera follow.
+- Format modes (Betamax, 8mm, MPEG2, MiniDV) with unique filters,
+  physics tweaks, and reskinned art.
 
 ## Project Structure
 
