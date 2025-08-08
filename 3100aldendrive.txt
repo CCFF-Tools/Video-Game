@@ -1,0 +1,29 @@
+I have some information about a building located at 3100 Alden Drive. I want you to read it so I can ask a follow up question.
+
+3100 Alden Drive sounds like the kind of address where the architecture has something to prove. Here’s what you might find there:
+
+⸻
+
+Name: The Alden Institute for Temporal Media and Experimental Archives
+(Colloquially: “The Loopstack,” “Alden Labs,” or simply “3100”)
+
+Exterior:
+	•	Brutalist-meets-neofuturist façade: exposed concrete ribs, glass curtain walls with iridescent film, and retractable copper sunshades shaped like timecode symbols.
+	•	A tall spire rises from the rear of the complex—part antenna, part kinetic sculpture, subtly rotating to track the sun and broadcast FM micro-signals no one admits are still in use.
+	•	An illuminated numerical display above the main door constantly counts backwards from a time no one understands.
+
+Interior:
+	•	Lobby: A double-height atrium with a looping, floor-to-ceiling LED mural showing a constantly shifting montage of analog static, forgotten film leaders, security footage from 20 years ago, and deepfake reenactments of moments that never happened.
+	•	Basement: An experimental archive vault storing decaying media formats, from 2-inch quadruplex tape to experimental quantum cartridges. No one goes in alone. It smells like ozone and vinegar syndrome.
+	•	3rd Floor (The Edit Sanctum): A row of soundproofed edit bays, each one acoustically isolated and equipped with every generation of editing software, from Steenbecks to Resolve Studio (running on air-gapped machines named after dead philosophers).
+	•	Sub-basement Level X (Restricted): Rumored to contain the original footage of events that haven’t happened yet. Swipe card access only works if you’ve contributed a previously unknown codec to the Institute.
+
+Purpose:
+	•	3100 Alden Drive is a cross between a media preservation think tank, an experimental film collective, and a rogue telecommunications lab. It’s where media theorists go when they’ve stopped believing in linear time.
+	•	Officially, it’s classified as a research hub for temporal media integrity, but insiders know it as the place where reality’s B-roll is cataloged.
+
+Tenants Include:
+	•	An archivist who speaks in SMPTE timecode.
+	•	A disgraced AI researcher rebuilding the perfect VHS encoder.
+	•	A poet who only writes closed captions.
+	•	A janitor who insists the building wasn’t there last year, despite working there for the last 12 years.
