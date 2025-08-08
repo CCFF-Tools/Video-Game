@@ -1,11 +1,13 @@
 import { PuzzleSwitch } from '../puzzles/switch.js';
 import { LockDoor } from '../puzzles/lockDoor.js';
+import { UpgradeItem } from '../items/upgrade.js';
 
 export class LevelManager {
   constructor(scene) {
     this.scene = scene;
     this.rooms = {};
     this.roomKeys = [];
+    this.unlockedGates = new Set();
   }
 
   preload(keys) {
@@ -25,6 +27,8 @@ export class LevelManager {
     this.switches = this.scene.physics.add.staticGroup();
     this.hazards = this.scene.physics.add.staticGroup();
     this.elevators = this.scene.physics.add.group();
+    this.upgrades = this.scene.physics.add.staticGroup();
+    this.gates = this.scene.physics.add.staticGroup();
   }
 
   start(startKey, player) {
@@ -33,26 +37,29 @@ export class LevelManager {
     this.scene.physics.add.collider(player, this.doors);
     this.scene.physics.add.collider(player, this.lockDoors);
     this.scene.physics.add.collider(player, this.elevators);
-    this.scene.physics.add.overlap(
-      player,
-      this.doors,
-      (pl, door) => {
+    this.scene.physics.add.collider(player, this.gates);
+    this.scene.physics.add.overlap(player, this.doors, (pl, door) => {
+      this.enterRoom(door.target, { x: door.startX, y: door.startY });
+    });
+    this.scene.physics.add.overlap(player, this.lockDoors, (pl, door) => {
+      if (!door.locked) {
         this.enterRoom(door.target, { x: door.startX, y: door.startY });
       }
-    );
-    this.scene.physics.add.overlap(
-      player,
-      this.lockDoors,
-      (pl, door) => {
-        if (!door.locked) {
-          this.enterRoom(door.target, { x: door.startX, y: door.startY });
-        }
-      }
-    );
+    });
     this.scene.physics.add.overlap(
       player,
       this.hazards,
       () => this.scene.takeDamage(10)
+    );
+    this.scene.physics.add.overlap(
+      player,
+      this.upgrades,
+      (pl, up) => {
+        up.destroy();
+        player.upgrades[up.type] = true;
+        this.updateGates();
+        this.scene.updateHud();
+      }
     );
     this.enterRoom(startKey, { x: player.x, y: player.y });
   }
@@ -66,6 +73,8 @@ export class LevelManager {
     this.switches.clear(true, true);
     this.hazards.clear(true, true);
     this.elevators.clear(true, true);
+    this.upgrades.clear(true, true);
+    this.gates.clear(true, true);
 
     room.platforms.forEach(p => {
       const platform = this.scene.add
@@ -85,6 +94,22 @@ export class LevelManager {
       door.startX = d.startX;
       door.startY = d.startY;
       this.doors.add(door);
+    });
+
+    (room.upgrades || []).forEach(u => {
+      const up = new UpgradeItem(this.scene, u.x, u.y, u.type);
+      this.upgrades.add(up);
+    });
+
+    (room.gates || []).forEach(g => {
+      const gate = this.scene.add
+        .image(g.x, g.y, 'door')
+        .setOrigin(0.5, 1)
+        .setTint(g.codec ? 0x0000ff : 0xffff00);
+      this.scene.physics.add.existing(gate, true);
+      gate.requiredUpgrade = g.upgrade;
+      gate.requiredGate = g.codec;
+      this.gates.add(gate);
     });
 
     const locks = [];
@@ -129,6 +154,8 @@ export class LevelManager {
       this.elevators.add(el);
     });
 
+    this.updateGates();
+
     const width = room.width || 800;
     const height = room.height || 600;
     this.scene.cameras.main.setBounds(0, 0, width, height);
@@ -164,5 +191,25 @@ export class LevelManager {
 
   disableHazards() {
     this.hazards.clear(true, true);
+  }
+
+  unlockGate(key) {
+    this.unlockedGates.add(key);
+    if (key === 'unlock') {
+      this.doors.clear(true, true);
+    }
+    this.updateGates();
+    this.scene.updateHud();
+  }
+
+  updateGates() {
+    this.gates.children.iterate(gate => {
+      if (
+        (gate.requiredUpgrade && this.player.upgrades[gate.requiredUpgrade]) ||
+        (gate.requiredGate && this.unlockedGates.has(gate.requiredGate))
+      ) {
+        gate.destroy();
+      }
+    });
   }
 }

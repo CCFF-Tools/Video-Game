@@ -105,6 +105,10 @@ class TestScene extends Phaser.Scene {
     g.fillStyle(0x444444, 1);
     g.fillRect(0, 0, 40, 80);
     g.generateTexture('door', 40, 80);
+    g.clear();
+    g.fillStyle(0xffff00, 1);
+    g.fillCircle(8, 8, 8);
+    g.generateTexture('upgrade', 16, 16);
     g.destroy();
   }
 
@@ -125,6 +129,8 @@ class TestScene extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setDragX(1000);
     this.player.setMaxVelocity(300, 500);
+    this.player.upgrades = {};
+    this.jumpCount = 0;
 
     this.levelManager.create();
     this.levelManager.start('room1', this.player);
@@ -149,6 +155,12 @@ class TestScene extends Phaser.Scene {
       .setScrollFactor(0);
     this.energyText = this.add
       .text(16, 36, '', { fontSize: '16px', color: '#0ff' })
+      .setScrollFactor(0);
+    this.upgradesText = this.add
+      .text(16, 56, '', { fontSize: '16px', color: '#ff0' })
+      .setScrollFactor(0);
+    this.gatesText = this.add
+      .text(16, 76, '', { fontSize: '16px', color: '#f0f' })
       .setScrollFactor(0);
 
     this.anims.create({
@@ -351,6 +363,12 @@ class TestScene extends Phaser.Scene {
       `INT ${percentToTimecode(this.playbackIntegrity)}`
     );
     this.energyText.setText(`NRG ${percentToTimecode(this.energy)}`);
+    this.upgradesText.setText(
+      `UPG ${Object.keys(this.player.upgrades).join(',')}`
+    );
+    this.gatesText.setText(
+      `GAT ${Array.from(this.levelManager.unlockedGates).join(',')}`
+    );
   }
 
   takeDamage(amount) {
@@ -403,8 +421,20 @@ class TestScene extends Phaser.Scene {
       this.fuseCodecs();
     }
 
-    if (this.cursors.up.isDown && onGround) {
-      this.player.setVelocityY(this.jumpVelocity);
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
+      if (onGround) {
+        this.player.setVelocityY(this.jumpVelocity);
+        this.jumpCount = 1;
+      } else if (
+        this.player.upgrades.doubleJump &&
+        this.jumpCount < 2
+      ) {
+        this.player.setVelocityY(this.jumpVelocity);
+        this.jumpCount++;
+      }
+    }
+    if (onGround) {
+      this.jumpCount = 0;
     }
 
     this.energy = Math.min(100, this.energy + 0.05);
@@ -437,9 +467,7 @@ class TestScene extends Phaser.Scene {
     const key = `${a}+${b}`;
     const key2 = `${b}+${a}`;
     const result = CODEC_FUSIONS[key] || CODEC_FUSIONS[key2];
-    if (result === 'unlock') {
-      this.levelManager.doors.clear(true, true);
-    } else if (result === 'hallucination') {
+    if (result === 'hallucination') {
       this.game.canvas.style.filter = 'hue-rotate(180deg)';
       this.time.addEvent({
         delay: 1000,
@@ -451,6 +479,8 @@ class TestScene extends Phaser.Scene {
       this.levelManager.powerElevators();
     } else if (result === 'hazard') {
       this.levelManager.disableHazards();
+    } else if (result) {
+      this.levelManager.unlockGate(result);
     } else {
       this.cameras.main.shake(500, 0.01);
       this.player.setTint(0xff0000);

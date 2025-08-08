@@ -52,6 +52,9 @@ Primordial Slush.
 - Timecode HUD displaying playback integrity and energy levels.
 - Playback integrity decays when hit or during codec glitches.
 - Final level concept where the player scrubs footage to fix the timeline.
+- Collectible ability modules that grant moves like double jump.
+- Gates that open only after acquiring upgrades or fusing specific codecs.
+- HUD indicators list collected abilities and opened gates.
 
 ## Format Modes
 
