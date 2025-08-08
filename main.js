@@ -72,8 +72,8 @@ class TestScene extends Phaser.Scene {
       'https://labs.phaser.io/assets/skies/sky4.png'
     );
     this.load.spritesheet(
-      'dude',
-      'https://labs.phaser.io/assets/sprites/dude.png',
+      'juno',
+      'juno.png',
       { frameWidth: 32, frameHeight: 48 }
     );
 
@@ -120,7 +120,7 @@ class TestScene extends Phaser.Scene {
       .setScrollFactor(0.3)
       .setDisplaySize(1600, 600);
 
-    this.player = this.physics.add.sprite(100, 450, 'dude');
+    this.player = this.physics.add.sprite(100, 450, 'juno');
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
     this.player.setDragX(1000);
@@ -153,7 +153,7 @@ class TestScene extends Phaser.Scene {
 
     this.anims.create({
       key: 'left',
-      frames: this.anims.generateFrameNumbers('dude', {
+      frames: this.anims.generateFrameNumbers('juno', {
         start: 0,
         end: 3
       }),
@@ -163,18 +163,24 @@ class TestScene extends Phaser.Scene {
 
     this.anims.create({
       key: 'turn',
-      frames: [{ key: 'dude', frame: 4 }],
+      frames: [{ key: 'juno', frame: 4 }],
       frameRate: 20
     });
 
     this.anims.create({
       key: 'right',
-      frames: this.anims.generateFrameNumbers('dude', {
+      frames: this.anims.generateFrameNumbers('juno', {
         start: 5,
         end: 8
       }),
       frameRate: 10,
       repeat: -1
+    });
+
+    this.anims.create({
+      key: 'jump',
+      frames: [{ key: 'juno', frame: 4 }],
+      frameRate: 20
     });
 
     this.bullets = this.physics.add.group();
@@ -376,15 +382,15 @@ class TestScene extends Phaser.Scene {
 
     if (this.cursors.left.isDown) {
       this.player.setAccelerationX(-this.moveAccel);
-      this.player.anims.play('left', true);
+      this.player.anims.play(onGround ? 'left' : 'jump', true);
       this.player.lastDir = -1;
     } else if (this.cursors.right.isDown) {
       this.player.setAccelerationX(this.moveAccel);
-      this.player.anims.play('right', true);
+      this.player.anims.play(onGround ? 'right' : 'jump', true);
       this.player.lastDir = 1;
     } else {
       this.player.setAccelerationX(0);
-      this.player.anims.play('turn', true);
+      this.player.anims.play(onGround ? 'turn' : 'jump', true);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.fireKey)) {
