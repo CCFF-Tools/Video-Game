@@ -34,8 +34,8 @@ Primordial Slush.
 - Side-view movement with jumping and collision.
 - Layered backgrounds with parallax depth.
 - Basic physics including gravity, friction, and camera follow.
-- Simple room layout for movement testing.
-- Script-driven platforms generated from `script.txt` lines.
+- Level manager loads room definitions for multi-room exploration.
+- Three interconnected rooms enable backtracking and hidden paths.
 - Popsicle enemies that progress through Lab 32's reconstitution phases.
 - Flavor-based weaknesses and dripping attacks with particle effects.
 - Video format modes (Betamax, 8mm, MPEG2, MiniDV) altering visuals and
@@ -61,7 +61,8 @@ Switch between media styles for different looks and physics tweaks:
 - `index.html` – entry point for the game.
 - `main.js` – main game logic and prototype scene.
 - `config.js` – configuration settings.
-- `script.txt` – lines used to build text platforms.
+- `src/level/manager.js` – loads room data and handles transitions.
+- `src/level/rooms/` – JSON room definitions.
 
 ## Contributing
 
