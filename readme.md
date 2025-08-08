@@ -2,8 +2,7 @@
 
 A browser-based surrealist sci-fi platformer concept. Play as Juno, a junior
 archivist navigating a glitching research facility fragmented across time and
-media. Use temporal jumps, format shifts, caption platforms, and cold storage
-combat to rebuild the original timeline.
+media.
 
 ## Getting Started
 
@@ -20,7 +19,6 @@ combat to rebuild the original timeline.
 - Format modes (Betamax, 8mm, MPEG2, MiniDV) with unique filters,
   physics tweaks, and reskinned art.
 - Time-shift objects between past and future states with the `T` key.
-
 ## Project Structure
 
 - `index.html` – entry point for the game.
